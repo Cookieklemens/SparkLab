@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Zeitleiste</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Zeitleiste und Musik-Synchronisation</h1>
+
+<!-- Bereich für die Wellenform -->
+<div id="waveform"></div>
+
+<!-- Zeitleiste -->
+<div id="timeline-container">
+    <h3>Zeitleiste</h3>
+    <div id="timeline"></div>
+    <button id="add-event">Ereignis hinzufügen</button>
+</div>
+
+<!-- Datei-Upload -->
+<input type="file" id="audio-upload" accept="audio/*">
+
+<script src="https://unpkg.com/wavesurfer.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
