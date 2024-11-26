@@ -1,25 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Erstellen der Wavesurfer-Instanz
+    // Wavesurfer erstellen
     const wavesurfer = WaveSurfer.create({
-        container: '#waveform',        // Container für die Wellenform
-        waveColor: 'violet',           // Farbe der Wellenform
-        progressColor: 'purple',       // Farbe des Fortschrittsbalkens
-        height: 150,                   // Höhe der Wellenform
-        responsive: true               // Passt sich der Fenstergröße an
+        container: '#waveform',
+        waveColor: 'orange',           // Farbe der Wellenform
+        progressColor: 'darkorange',   // Farbe des Fortschrittsbalkens
+        height: 150,
+        responsive: true
     });
 
-    // Debugging: Wavesurfer geladen
-    console.log('Wavesurfer geladen:', wavesurfer);
-
-    // Pfad zur Audiodatei (hier lokal oder von einer URL)
-    const audioFileUrl = 'audio/example.wav';  // Ändere den Pfad zur Datei, wenn nötig
-
     // Audiodatei laden
+    const audioFileUrl = 'audio/example.mp3';
     wavesurfer.load(audioFileUrl);
 
-    // Wenn Wavesurfer die Wellenform geladen hat
+    // Debugging: Wenn Wellenform geladen wurde
     wavesurfer.on('ready', function () {
-        console.log("Wellenform wurde geladen!");
+        console.log("Wellenform ist bereit!");
     });
 
     // Fehlerbehandlung
@@ -27,21 +22,48 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("Fehler beim Laden der Wellenform:", e);
     });
 
-    // Hinzufügen eines Ereignisses auf der Zeitleiste
+    // HTML-Elemente
     const timeline = document.getElementById('timeline');
+    const playButton = document.createElement('button'); // Play/Pause-Button
+    playButton.textContent = 'Play/Pause';
+    document.body.insertBefore(playButton, timeline);
+
+    const timestamp = document.createElement('div'); // Zeitstempel
+    timestamp.id = 'timestamp';
+    timestamp.style.position = 'absolute';
+    timestamp.style.top = '0';
+    timestamp.style.backgroundColor = 'yellow';
+    timestamp.style.padding = '5px';
+    document.body.appendChild(timestamp);
+
+    // Abspielen/Pausieren der Musik
+    playButton.addEventListener('click', function () {
+        wavesurfer.playPause(); // Startet oder pausiert die Musik
+    });
+
+    // Zeitanzeige aktualisieren
+    wavesurfer.on('audioprocess', function () {
+        const currentTime = wavesurfer.getCurrentTime(); // Aktuelle Wiedergabezeit
+        const duration = wavesurfer.getDuration();       // Gesamtdauer
+
+        // Timestamp anzeigen
+        timestamp.textContent = "Zeit: ${currentTime.toFixed(2)}s";
+
+        // Position des Cursors auf der Zeitleiste berechnen
+        const timelineWidth = timeline.offsetWidth;
+        const position = (currentTime / duration) * timelineWidth;
+
+        // Den Cursor bewegen
+        timestamp.style.left = ${position}px;
+    });
+
+    // Zeitleiste mit Ereignissen
     const addEventButton = document.getElementById('add-event');
-
     addEventButton.addEventListener('click', function () {
-        const currentTime = wavesurfer.getCurrentTime();  // aktuelle Wiedergabezeit des Audio
-        const timelineWidth = timeline.offsetWidth;       // Breite der Zeitleiste
-        const duration = wavesurfer.getDuration();        // Gesamtdauer des Tracks
+        const currentTime = wavesurfer.getCurrentTime();
+        const timelineWidth = timeline.offsetWidth;
+        const duration = wavesurfer.getDuration();
 
-        // Debugging-Ausgabe für alle Variablen
-        console.log("Aktuelle Wiedergabezeit:", currentTime);
-        console.log("Gesamtdauer des Tracks:", duration);
-        console.log("Breite der Zeitleiste:", timelineWidth);
-
-        // Sicherheitsprüfung: Wenn keine Datei geladen oder die Dauer 0 ist
         if (duration === 0) {
             console.error("Audio-Datei ist nicht geladen oder hat keine Dauer.");
             return;
@@ -49,22 +71,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Berechnung der Position auf der Zeitleiste
         const position = (currentTime / duration) * timelineWidth;
-
-        // Debugging-Ausgabe für berechnete Position
-        console.log("Berechnete Position auf der Zeitleiste:", position);
-
-        // Neues Ereignis-Element erstellen
         const eventElement = document.createElement('div');
         eventElement.classList.add('event');
-
-        // Stellen Sie sicher, dass die position korrekt als String mit px gesetzt wird
-        eventElement.style.left = position + 'px';  // Alternative zu Template-Literal
-
+        eventElement.style.left = ${position}px;
         eventElement.style.width = '5px';
         eventElement.style.height = '20px';
         eventElement.style.backgroundColor = 'red';
-
-        // Das Ereignis zur Zeitleiste hinzufügen
         timeline.appendChild(eventElement);
     });
 });

@@ -4,50 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zeitleiste und Musik-Synchronisation</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Stil für die Zeitleiste und Wellenform */
-        #waveform {
-            width: 100%;
-            height: 150px; /* Höhe der Wellenform */
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-        }
-
-        #timeline {
-            position: relative;
-            width: 100%;
-            height: 30px; /* Höhe der Zeitleiste */
-            background-color: #ddd;
-            margin-top: 10px;
-        }
-
-        .event {
-            position: absolute;
-            width: 5px;
-            height: 30px;
-            background-color: red;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js"></script>
 </head>
 <body>
 <h1>Zeitleiste und Musik-Synchronisation</h1>
-
-<!-- Bereich für die Wellenform -->
-<div id="waveform"></div>
-
-<!-- Zeitleiste -->
-<div id="timeline-container">
-    <h3>Zeitleiste</h3>
-    <div id="timeline"></div>
-    <button id="add-event">Ereignis hinzufügen</button>
-</div>
-
-<!-- Datei-Upload (optional, für zukünftige Verwendung) -->
-<input type="file" id="audio-upload" accept="audio/*">
-
-<!-- Wavesurfer.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/wavesurfer.js"></script>
+<div id="waveform" style="width: 100%; height: 150px; background: lightgray;"></div>
+<div id="timeline" style="width: 100%; height: 30px; background: lightblue;"></div>
+<button id="add-event">Ereignis hinzufügen</button>
 <script src="script.js"></script>
 </body>
 </html>
