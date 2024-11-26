@@ -1,39 +1,48 @@
 // Wavesurfer-Instanz erstellen
 const wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: 'violet',
-    progressColor: 'purple',
-    height: 150,
-    responsive: true
+    container: '#waveform',       // Container für die Wellenform
+    waveColor: 'violet',         // Farbe der Wellenform
+    progressColor: 'purple',     // Farbe des Fortschrittsbalkens
+    height: 150,                 // Höhe der Wellenform
+    responsive: true             // Passt sich an die Fenstergröße an
 });
 
-// Audio-Upload-Handler
+// Datei-Upload
 const audioUpload = document.getElementById('audio-upload');
 audioUpload.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
-        const objectURL = URL.createObjectURL(file);
-        wavesurfer.load(objectURL);
+        const objectURL = URL.createObjectURL(file); // Erstellt URL aus Datei
+        wavesurfer.load(objectURL);                 // Wellenform laden
+        console.log("Audio geladen:", file.name);
+    } else {
+        console.error("Keine Datei ausgewählt.");
     }
 });
 
-// Zeitleisten-Container
+// Zeitleisten-Funktionen
 const timeline = document.getElementById('timeline');
 const addEventButton = document.getElementById('add-event');
 
-// Ereignisse speichern
+// Ereignis-Liste speichern
 let events = [];
 
 // Ereignis hinzufügen
 addEventButton.addEventListener('click', () => {
-    const currentTime = wavesurfer.getCurrentTime(); // Aktuelle Zeit der Audio-Wiedergabe
-    const timelineWidth = timeline.offsetWidth; // Breite der Zeitleiste
-    const duration = wavesurfer.getDuration(); // Gesamtdauer des Tracks
+    const currentTime = wavesurfer.getCurrentTime(); // Aktuelle Wiedergabezeit
+    const timelineWidth = timeline.offsetWidth;     // Breite der Zeitleiste
+    const duration = wavesurfer.getDuration();      // Gesamtdauer des Tracks
 
-    // Berechnung der Position des Events auf der Zeitleiste
+    // Sicherheitsprüfung: Audio-Datei muss geladen sein
+    if (duration === 0) {
+        console.error("Keine Audio-Datei geladen oder Dauer ist 0.");
+        return;
+    }
+
+    // Berechnung der Position auf der Zeitleiste
     const position = (currentTime / duration) * timelineWidth;
 
-    // Neues Ereignis-Element
+    // Neues Ereignis-Element erstellen
     const eventElement = document.createElement('div');
     eventElement.classList.add('event');
     eventElement.style.left = ${position}px;
@@ -43,15 +52,13 @@ addEventButton.addEventListener('click', () => {
 
     // Ereignisdaten speichern
     events.push({ time: currentTime });
-    console.log('Aktuelle Ereignisse:', events);
+    console.log("Ereignis hinzugefügt bei:", currentTime, "Sekunden");
 });
 
-// Klick auf Wellenform -> Audio springt zu Punkt
-wavesurfer.on('click', (e) => {
-    const timelineWidth = timeline.offsetWidth;
-    const clickX = e.offsetX;
-    const duration = wavesurfer.getDuration();
-
-    const clickedTime = (clickX / timelineWidth) * duration;
-    wavesurfer.setCurrentTime(clickedTime);
+// Fehler-Handler für Wavesurfer
+wavesurfer.on('error', (e) => {
+    console.error("Fehler bei Wavesurfer:", e);
 });
+
+// Debugging: Prüfen, ob Wavesurfer erfolgreich geladen wurde
+console.log(typeof WaveSurfer !== 'undefined' ? 'Wavesurfer.js geladen!' : 'Fehler beim Laden von Wavesurfer.js.');
