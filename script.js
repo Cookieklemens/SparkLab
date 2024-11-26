@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
         timeline.appendChild(eventElement);
     });
 
-    // Funktion zum Aktualisieren der Breite eines Ereignisses
     function updateEventWidth(eventElement, timelineWidth, totalDuration) {
         const minWidth = 10; // Mindestbreite in Pixeln
         const duration = parseFloat(eventElement.dataset.duration);
@@ -94,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
         eventElement.style.width = width + 'px';
     }
 
-    // Bearbeitungsdialog erstellen
     function openEditDialog(eventElement) {
         let dialog = document.getElementById('edit-dialog');
         if (!dialog) {
@@ -128,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </label>
                 <br>
                 <button id="save-event">Speichern</button>
+                <button id="delete-event">Löschen</button>
                 <button id="cancel-edit">Abbrechen</button>
             `;
 
@@ -143,22 +142,38 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-duration').value = parseFloat(eventElement.dataset.duration);
         document.getElementById('edit-color').value = eventElement.dataset.color;
 
+        // Speichern der Änderungen
         document.getElementById('save-event').onclick = function () {
-            eventElement.dataset.name = document.getElementById('edit-name').value;
-            eventElement.dataset.startTime = parseFloat(document.getElementById('edit-start-time').value);
-            eventElement.dataset.duration = parseFloat(document.getElementById('edit-duration').value);
-            eventElement.dataset.color = document.getElementById('edit-color').value;
+            const newName = document.getElementById('edit-name').value;
+            const newStartTime = parseFloat(document.getElementById('edit-start-time').value);
+            const newDuration = parseFloat(document.getElementById('edit-duration').value);
+            const newColor = document.getElementById('edit-color').value;
 
-            eventElement.title = eventElement.dataset.name; // Tooltip aktualisieren
-            eventElement.style.backgroundColor = eventElement.dataset.color;
+            eventElement.dataset.name = newName;
+            eventElement.dataset.startTime = newStartTime;
+            eventElement.dataset.duration = newDuration;
+            eventElement.dataset.color = newColor;
+
+            eventElement.title = newName; // Tooltip aktualisieren
+            eventElement.style.backgroundColor = newColor;
 
             const timelineWidth = timeline.offsetWidth;
             const totalDuration = wavesurfer.getDuration();
+
+            // Position und Breite aktualisieren
+            eventElement.style.left = ((newStartTime / totalDuration) * timelineWidth) + 'px';
             updateEventWidth(eventElement, timelineWidth, totalDuration);
 
             closeEditDialog();
         };
 
+        // Löschen des Ereignisses
+        document.getElementById('delete-event').onclick = function () {
+            eventElement.remove();
+            closeEditDialog();
+        };
+
+        // Abbrechen des Bearbeitens
         document.getElementById('cancel-edit').onclick = function () {
             closeEditDialog();
         };
