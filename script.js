@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const duration = wavesurfer.getDuration();
 
         if (duration === 0) {
-            console.error("Audio-Datei ist nicht geladen oder hat keine Dauer.");
+            console.error("Audio-Datei ist nicht geladen oder hat keine Dauer!");
             return;
         }
 
