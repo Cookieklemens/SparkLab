@@ -1,45 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Daten für alle Timelines und deren Ereignisse
-    let timelines = {};
-
-    // Funktion zum Erstellen einer neuen Timeline
-    function createNewTimeline(timelineName) {
-        const timelineContainer = document.createElement('div');
-        timelineContainer.classList.add('timeline');
-        timelineContainer.style.position = 'relative';
-        timelineContainer.style.height = '200px';
-        timelineContainer.style.marginBottom = '20px';
-        timelineContainer.style.border = '1px solid #ccc';
-
-        const timelineLabel = document.createElement('div');
-        timelineLabel.classList.add('timeline-label');
-        timelineLabel.textContent = timelineName;
-        timelineContainer.appendChild(timelineLabel);
-
-        // Timeline zu den Timelines hinzufügen
-        timelines[timelineName] = {
-            container: timelineContainer,
-            events: []
-        };
-
-        // Timeline in das Dokument einfügen
-        document.body.appendChild(timelineContainer);
-    }
-
-    // Standard-Timeline erstellen
-    createNewTimeline('Timeline 1');
-
-    // Dropdown für Timeline-Auswahl
-    const timelineSelect = document.createElement('select');
-    for (const name in timelines) {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        timelineSelect.appendChild(option);
-    }
-    document.body.appendChild(timelineSelect);
-
-    // Wavesurfer initialisieren
     const wavesurfer = WaveSurfer.create({
         container: '#waveform',
         waveColor: 'orange',
@@ -59,12 +18,38 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("Fehler beim Laden der Wellenform:", e);
     });
 
+    const timeline = document.getElementById('timeline');
+    const playButton = document.createElement('button');
+    playButton.textContent = 'Play/Pause';
+    document.body.insertBefore(playButton, timeline);
+
+    const timestamp = document.createElement('div');
+    timestamp.id = 'timestamp';
+    timestamp.style.position = 'absolute';
+    timestamp.style.top = '0';
+    timestamp.style.backgroundColor = 'yellow';
+    timestamp.style.padding = '5px';
+    document.body.appendChild(timestamp);
+
+    playButton.addEventListener('click', function () {
+        wavesurfer.playPause();
+    });
+
+    wavesurfer.on('audioprocess', function () {
+        const currentTime = wavesurfer.getCurrentTime();
+        const duration = wavesurfer.getDuration();
+
+        timestamp.textContent = 'Zeit: ' + currentTime.toFixed(2) + 's';
+
+        const timelineWidth = timeline.offsetWidth;
+        const position = (currentTime / duration) * timelineWidth;
+        timestamp.style.left = position + 'px';
+    });
+
     const addEventButton = document.getElementById('add-event');
     addEventButton.addEventListener('click', function () {
         const currentTime = wavesurfer.getCurrentTime();
-        const timelineName = timelineSelect.value;
-        const timeline = timelines[timelineName];
-        const timelineWidth = timeline.container.offsetWidth;
+        const timelineWidth = timeline.offsetWidth;
         const duration = wavesurfer.getDuration();
 
         if (duration === 0) {
@@ -86,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
         eventElement.dataset.duration = 1; // Standarddauer
         eventElement.dataset.color = 'red';
         eventElement.dataset.name = 'Neues Ereignis';
-        eventElement.dataset.timeline = timelineName; // Timeline zuordnen
 
         // Dynamische Breite basierend auf Dauer
         updateEventWidth(eventElement, timelineWidth, duration);
@@ -99,9 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
             openEditDialog(eventElement);
         });
 
-        // Ereignis zur Timeline hinzufügen
-        timeline.container.appendChild(eventElement);
-        timeline.events.push(eventElement);
+        timeline.appendChild(eventElement);
     });
 
     function updateEventWidth(eventElement, timelineWidth, totalDuration) {
@@ -143,12 +125,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <input type="color" id="edit-color">
                 </label>
                 <br>
-                <label>
-                    Timeline: 
-                    <select id="edit-timeline">
-                    </select>
-                </label>
-                <br>
                 <button id="save-event">Speichern</button>
                 <button id="delete-event">Löschen</button>
                 <button id="cancel-edit">Abbrechen</button>
@@ -161,19 +137,6 @@ document.addEventListener('DOMContentLoaded', function () {
         dialog.style.left = rect.left + 'px';
         dialog.style.top = rect.bottom + 'px';
 
-        // Dropdown mit Timelines füllen
-        const timelineDropdown = document.getElementById('edit-timeline');
-        timelineDropdown.innerHTML = ''; // Vorherige Optionen löschen
-        for (const name in timelines) {
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            if (name === eventElement.dataset.timeline) {
-                option.selected = true;
-            }
-            timelineDropdown.appendChild(option);
-        }
-
         document.getElementById('edit-name').value = eventElement.dataset.name;
         document.getElementById('edit-start-time').value = parseFloat(eventElement.dataset.startTime);
         document.getElementById('edit-duration').value = parseFloat(eventElement.dataset.duration);
@@ -185,36 +148,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const newStartTime = parseFloat(document.getElementById('edit-start-time').value);
             const newDuration = parseFloat(document.getElementById('edit-duration').value);
             const newColor = document.getElementById('edit-color').value;
-            const newTimeline = document.getElementById('edit-timeline').value;
 
             eventElement.dataset.name = newName;
             eventElement.dataset.startTime = newStartTime;
             eventElement.dataset.duration = newDuration;
             eventElement.dataset.color = newColor;
-            eventElement.dataset.timeline = newTimeline;
 
             eventElement.title = newName; // Tooltip aktualisieren
             eventElement.style.backgroundColor = newColor;
 
-            const timelineWidth = timelines[newTimeline].container.offsetWidth;
+            const timelineWidth = timeline.offsetWidth;
             const totalDuration = wavesurfer.getDuration();
 
             // Position und Breite aktualisieren
             eventElement.style.left = ((newStartTime / totalDuration) * timelineWidth) + 'px';
             updateEventWidth(eventElement, timelineWidth, totalDuration);
 
-            // Ereignis zur neuen Timeline verschieben
-            timelines[newTimeline].container.appendChild(eventElement);
             closeEditDialog();
         };
 
         // Löschen des Ereignisses
         document.getElementById('delete-event').onclick = function () {
-            const timelineName = eventElement.dataset.timeline;
-            const index = timelines[timelineName].events.indexOf(eventElement);
-            if (index > -1) {
-                timelines[timelineName].events.splice(index, 1);
-            }
             eventElement.remove();
             closeEditDialog();
         };
@@ -239,21 +193,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Leertaste für Play/Pause
         if (event.code === 'Space') {
-            if (wavesurfer.isPlaying()) {
-                wavesurfer.pause();
-            } else {
-                wavesurfer.play();
-            }
+            wavesurfer.playPause();
         }
 
-        // Punkt (.) für schnellen Vorlauf 0.5s
-        if (event.code === 'Period') {
-            wavesurfer.seekTo(Math.min((currentTime + 0.5) / duration, 1));
+        // Pfeiltasten für Zurück-/Vorwärtsbewegung
+        if (event.code === 'ArrowRight') {
+            wavesurfer.seekTo((currentTime + 5) / duration); // 5 Sekunden vorwärts
+        }
+        if (event.code === 'ArrowLeft') {
+            wavesurfer.seekTo((currentTime - 5) / duration); // 5 Sekunden zurück
         }
 
-        // Komma (,) für schnellen Rücklauf 0.5s
-        if (event.code === 'Comma') {
-            wavesurfer.seekTo(Math.max((currentTime - 0.5) / duration, 0));
+        // Feinere Steuerung für Vorwärts/Rückwärts in 0,5s
+        if (event.code === 'Period') { // Punkt (.)
+            wavesurfer.seekTo((currentTime + 0.5) / duration); // 0.5 Sekunden vorwärts
+        }
+        if (event.code === 'Comma') { // Komma (,)
+            wavesurfer.seekTo((currentTime - 0.5) / duration); // 0.5 Sekunden zurück
         }
     });
 });
