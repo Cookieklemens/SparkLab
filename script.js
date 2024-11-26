@@ -63,14 +63,14 @@ document.addEventListener('DOMContentLoaded', function () {
         eventElement.classList.add('event');
         eventElement.style.position = 'absolute';
         eventElement.style.left = position + 'px';
-        eventElement.style.height = '20px';
-        eventElement.style.backgroundColor = 'red';
+        eventElement.style.height = '30px';
+        eventElement.style.backgroundColor = 'black';
 
         // Standardwerte für Ereignis
         eventElement.dataset.startTime = currentTime.toFixed(2);
         eventElement.dataset.duration = 1; // Standarddauer
-        eventElement.dataset.color = 'red';
-        eventElement.dataset.name = 'Neues Ereignis';
+        eventElement.dataset.color = 'black';
+        eventElement.dataset.name = 'Neuer Effekt';
 
         // Dynamische Breite basierend auf Dauer
         updateEventWidth(eventElement, timelineWidth, duration);
@@ -112,12 +112,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 <br>
                 <label>
                     Anfangszeit: 
-                    <input type="number" step="0.1" id="edit-start-time">
+                    <input type="number" step="0.1" id="edit-start-time"> s
                 </label>
                 <br>
                 <label>
-                    Dauer: 
-                    <input type="number" step="0.1" id="edit-duration">
+                    Effektdauer: 
+                    <input type="number" step="0.1" id="edit-duration"> s
                 </label>
                 <br>
                 <label>
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <br>
                 <button id="save-event">Speichern</button>
                 <button id="delete-event">Löschen</button>
-                <button id="cancel-edit">Abbrechen</button>
+                <button id="cancel-edit">Abbrennen</button>
             `;
 
             document.body.appendChild(dialog);
@@ -198,18 +198,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Pfeiltasten für Zurück-/Vorwärtsbewegung
         if (event.code === 'ArrowRight') {
-            wavesurfer.seekTo((currentTime + 5) / duration); // 5 Sekunden vorwärts
+            wavesurfer.seekTo((currentTime + 0.5) / duration); // .5 Sekunden vorwärts
         }
         if (event.code === 'ArrowLeft') {
-            wavesurfer.seekTo((currentTime - 5) / duration); // 5 Sekunden zurück
+            wavesurfer.seekTo((currentTime - 0.5) / duration); // .5 Sekunden zurück
         }
 
-        // Feinere Steuerung für Vorwärts/Rückwärts in 0,5s
-        if (event.code === 'Period') { // Punkt (.)
-            wavesurfer.seekTo((currentTime + 0.5) / duration); // 0.5 Sekunden vorwärts
-        }
-        if (event.code === 'Comma') { // Komma (,)
-            wavesurfer.seekTo((currentTime - 0.5) / duration); // 0.5 Sekunden zurück
-        }
     });
 });
