@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Tooltip beim Hover anzeigen
         eventElement.title = eventElement.dataset.name;
 
-        // Klick auf Ereignis zum Bearbeiten
+        // Klick auf Ereignis zum Bearbeiten.
         eventElement.addEventListener('click', function () {
             openEditDialog(eventElement);
         });
